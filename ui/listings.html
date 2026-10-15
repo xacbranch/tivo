@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TV Listings</title>
+<style>
+  :root {
+    --bg: #070b22; --panel: #101845; --ink: #eef1ff; --dim: #9aa6d6; --line: #26306a;
+    --cell-top: #5b7aa3; --cell-bot: #24405f; --now-top: #fff4ad; --now-bot: #d8bd3d; --gold: #f7d97f;
+    --row: 38px; --slot: 112px; --chan: 168px; --head: 34px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+  header {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 16px; background: linear-gradient(180deg, #1b2668, #0d1440); border-bottom: 1px solid var(--line);
+  }
+  header img { height: 34px; }
+  header h1 { margin: 0; font-size: 19px; font-weight: 700; }
+  header .day { color: var(--gold); font-weight: 700; font-size: 15px; min-width: 150px; }
+  header button {
+    font: 600 13px/1 inherit; color: var(--ink); background: #2a3780; border: 1px solid #4352a8;
+    border-radius: 6px; padding: 7px 11px; cursor: pointer;
+  }
+  header button:hover { background: #34449a; }
+  header .hint { margin-left: auto; color: var(--dim); font-size: 12.5px; }
+  #wrap { position: relative; overflow: auto; height: calc(100% - 59px); }
+  #grid { position: relative; }
+  .ruler {
+    position: sticky; top: 0; z-index: 3; height: var(--head); margin-left: var(--chan);
+    background: linear-gradient(180deg, #4b4994, #2c2a6a); border-bottom: 2px solid #000;
+  }
+  .ruler div { position: absolute; top: 0; height: var(--head); line-height: var(--head); padding-left: 8px;
+    font-size: 13px; font-weight: 700; border-left: 2px solid rgba(0,0,0,.45); white-space: nowrap; }
+  .corner { position: sticky; left: 0; top: 0; z-index: 4; float: left; width: var(--chan); height: var(--head);
+    margin-bottom: calc(-1 * var(--head)); background: #2c2a6a; border-bottom: 2px solid #000; }
+  .row { position: relative; height: var(--row); border-bottom: 1px solid #050818; }
+  .chan {
+    position: sticky; left: 0; z-index: 2; width: var(--chan); height: 100%; float: left;
+    display: flex; align-items: center; gap: 8px; padding: 0 10px;
+    background: linear-gradient(180deg, #d3d4db, #8b8c98); color: #fff; border-right: 2px solid #000;
+    text-shadow: 1px 1px 1px rgba(0,0,0,.85);
+  }
+  .chan .n { font-size: 19px; font-weight: 700; min-width: 40px; text-align: right; }
+  .chan .c { font-size: 10.5px; font-weight: 700; letter-spacing: .3px; line-height: 1.15; }
+  .chan .logo { display: flex; align-items: center; justify-content: center; width: 50px; height: 18px; margin-bottom: 2px; padding: 1px 3px; box-sizing: border-box; border-radius: 3px; background: linear-gradient(180deg, #fff, #dde2ec); box-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+  .chan .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .chan .c small { display: block; font-weight: 600; font-size: 10px; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
+  .cells { position: absolute; left: var(--chan); top: 0; bottom: 0; right: 0; }
+  .cell {
+    position: absolute; top: 2px; bottom: 2px; padding: 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    line-height: calc(var(--row) - 4px); font-size: 13.5px; cursor: pointer; border-radius: 3px;
+    background: linear-gradient(180deg, var(--cell-top), #3f5f86 45%, var(--cell-bot));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35); text-shadow: 1px 1px 1px rgba(0,0,0,.8);
+  }
+  .cell .y { color: #cfdcf3; font-size: 12px; }
+  .cell.filler { background: #1a2347; color: var(--dim); font-style: italic; }
+  .cell.now { background: linear-gradient(180deg, var(--now-top), var(--now-bot)); color: #191500; text-shadow: none; }
+  .cell.now .y { color: #4d4200; }
+  .cell:hover { outline: 2px solid #fff; }
+  .nowline { position: absolute; top: 0; bottom: 0; width: 2px; background: #ff4a3a; z-index: 1; box-shadow: 0 0 6px #ff4a3a; pointer-events: none; }
+  #detail {
+    position: fixed; right: 16px; bottom: 16px; width: min(420px, calc(100vw - 32px)); z-index: 10; display: none;
+    background: var(--panel); border: 2px solid #94a8ab; border-radius: 12px; padding: 14px 16px; box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  }
+  #detail.on { display: block; }
+  #detail h2 { margin: 0 0 4px; font-size: 19px; }
+  #detail .when { color: var(--gold); font-size: 13.5px; margin-bottom: 8px; }
+  #detail p { margin: 0; font-size: 14px; line-height: 1.45; color: #dfe4ff; }
+  #detail .close { position: absolute; right: 10px; top: 8px; background: none; border: 0; color: var(--dim); font-size: 20px; cursor: pointer; }
+  @media (max-width: 600px) { :root { --chan: 118px; --slot: 96px; } .chan .c small { display: none; } header .hint { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/img/tivo-logo.webp" alt="">
+  <h1>TV Listings</h1>
+  <button id="prev">◀ Day</button>
+  <div class="day" id="day"></div>
+  <button id="next">Day ▶</button>
+  <button id="now">Now</button>
+  <span class="hint">Gold = on now · click a show for details · broadcast day runs 6 am to 6 am</span>
+</header>
+<div id="wrap"><div id="grid"></div></div>
+<div id="detail"><button class="close" aria-label="Close">×</button><h2></h2><div class="when"></div><p></p></div>
+<script type="module">
+  import { CHANNELS, loadLineup } from './js/data.js';
+  import { clock, dayDate, range, duration } from './js/time.js';
+  import { describe } from './js/screens.js';
+
+  const HALF = 30 * 60e3;
+  const css = getComputedStyle(document.documentElement);
+  const SLOT = () => parseFloat(css.getPropertyValue('--slot'));
+  const grid = document.getElementById('grid');
+  const wrap = document.getElementById('wrap');
+  const detail = document.getElementById('detail');
+  let dayStart;
+
+  const broadcastDay = (t) => { const d = new Date(t); if (d.getHours() < 6) d.setDate(d.getDate() - 1); d.setHours(6, 0, 0, 0); return d.getTime(); };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function render() {
+    const slot = SLOT();
+    const end = dayStart + 48 * HALF;
+    const x = (t) => ((t - dayStart) / HALF) * slot;
+    const now = Date.now();
+    document.getElementById('day').textContent = dayDate(dayStart);
+    let ruler = '';
+    for (let i = 0; i < 48; i++) ruler += `<div style="left:${i * slot}px;width:${slot}px">${clock(dayStart + i * HALF)}</div>`;
+    let rows = '';
+    CHANNELS.forEach((ch, ci) => {
+      let cells = '';
+      ch.airings.forEach((a, ai) => {
+        if (a.end <= dayStart || a.start >= end) return;
+        const l = x(Math.max(a.start, dayStart)), w = x(Math.min(a.end, end)) - l - 3;
+        const on = a.start <= now && now < a.end;
+        const s = a.show;
+        const extra = s.movie ? ` <span class="y">(${s.year})</span>` : a.epTitle ? ` <span class="y">"${esc(a.epTitle)}"</span>` : '';
+        cells += `<div class="cell${a.filler ? ' filler' : ''}${on ? ' now' : ''}" style="left:${l + 1}px;width:${w}px" data-c="${ci}" data-a="${ai}">${esc(s.title)}${extra}</div>`;
+      });
+      const call = ch.logo ? `<span class="logo"><img src="${ch.logo}" alt="${ch.call}"></span>` : ch.call;
+      rows += `<div class="row"><div class="chan"><span class="n">${ch.num}</span><span class="c">${call}<small>${esc(ch.name)}</small></span></div><div class="cells">${cells}</div></div>`;
+    });
+    const nowLine = now >= dayStart && now < end ? `<div class="nowline" style="left:calc(var(--chan) + ${x(now)}px)"></div>` : '';
+    grid.style.width = `calc(var(--chan) + ${48 * slot}px)`;
+    grid.innerHTML = `<div class="corner"></div><div class="ruler" style="width:${48 * slot}px">${ruler}</div>${rows}${nowLine}`;
+  }
+
+  function scrollToNow() {
+    const now = Date.now();
+    wrap.scrollLeft = Math.max(0, ((now - dayStart) / HALF) * SLOT() - 2 * SLOT());
+  }
+
+  grid.addEventListener('click', (e) => {
+    const cell = e.target.closest('.cell');
+    if (!cell) return;
+    const ch = CHANNELS[cell.dataset.c];
+    const a = ch.airings[cell.dataset.a];
+    detail.querySelector('h2').textContent = a.show.title + (a.show.movie ? ` (${a.show.year})` : '');
+    detail.querySelector('.when').textContent = `${dayDate(a.start)}  ${range(a.start, a.end)}  ·  ${ch.num} ${ch.call}  ·  ${duration(Math.round(a.dur))}${a.show.rating ? '  ·  ' + a.show.rating : ''}`;
+    detail.querySelector('p').textContent = describe(a);
+    detail.classList.add('on');
+  });
+  detail.querySelector('.close').addEventListener('click', () => detail.classList.remove('on'));
+  const DAY = 48 * HALF;
+  document.getElementById('prev').onclick = () => { dayStart -= DAY; render(); };
+  document.getElementById('next').onclick = () => { dayStart += DAY; render(); };
+  document.getElementById('now').onclick = () => { dayStart = broadcastDay(Date.now()); render(); scrollToNow(); };
+
+  await loadLineup();
+  dayStart = broadcastDay(Date.now());
+  render();
+  scrollToNow();
+  setInterval(render, 60e3);
+</script>
+</body>
+</html>

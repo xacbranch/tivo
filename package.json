@@ -1,0 +1,15 @@
+{
+  "name": "tivo-cable-box",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A TiVo Series 4 (SD menus) style cable box for a 4:3 CRT: 2000s channels from free live streams, archive.org and the National Weather Service",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "build": "python3 tools/build_lineup.py",
+    "check-streams": "python3 tools/build_lineup.py --check-iptv"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

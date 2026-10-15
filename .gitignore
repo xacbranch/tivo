@@ -1,0 +1,12 @@
+# macOS
+._*
+.DS_Store
+# caches the build makes (archive.org lookups, golf course data, your folders' runtimes)
+tools/.cache/
+tools/.archive.json
+tools/.golf.json
+tools/.folders.json
+__pycache__/
+node_modules/
+# your own videos and the DVR's recordings
+media/

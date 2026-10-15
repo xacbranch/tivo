@@ -1,0 +1,51 @@
+# TiVo Series 3 / HD "peanut" remote → the box's keyboard keys (ui/js/keys.js), for the
+# Raspberry Pi's IR receiver (ir-keytable). Every button arrives as a plain key, so the
+# OS never grabs volume or media keys and the browser sees exactly what the box expects.
+#
+# Scancodes are from the Linux kernel's rc-tivo keymap (NEC, vendor 0x3085, remote
+# switch on DVR 1). Check yours with:  sudo ir-keytable -c -p nec -t
+# then fix any line that differs and load with:  sudo ir-keytable -c -w tivo-peanut.toml
+[[protocols]]
+name = "tivo-peanut"
+protocol = "nec"
+variant = "nec32"
+[protocols.scancodes]
+0x3085f009 = "KEY_T"           # TiVo
+0x3085e010 = "KEY_O"           # TV Power (box standby)
+0x3085e011 = "KEY_L"           # Live TV
+0x3085c034 = "KEY_V"           # TV Input
+0x3085e013 = "KEY_I"           # Info
+0x3085a05f = "KEY_W"           # Window (zoom)
+0x3085c036 = "KEY_G"           # Guide
+0x3085e014 = "KEY_UP"
+0x3085e016 = "KEY_DOWN"
+0x3085e017 = "KEY_LEFT"
+0x3085e015 = "KEY_RIGHT"
+0x3085e019 = "KEY_ENTER"       # Select
+0x3085e018 = "KEY_D"           # Thumbs Down
+0x3085e01a = "KEY_U"           # Thumbs Up
+0x3085e01c = "KEY_APOSTROPHE"  # Vol Up
+0x3085e01d = "KEY_SEMICOLON"   # Vol Down
+0x3085e01b = "KEY_M"           # Mute
+0x3085d020 = "KEY_R"           # Record
+0x3085e01e = "KEY_PAGEUP"      # Chan Up / Page
+0x3085e01f = "KEY_PAGEDOWN"    # Chan Down / Page
+0x3085d021 = "KEY_P"           # Play
+0x3085d023 = "KEY_SPACE"       # Pause
+0x3085d022 = "KEY_LEFTBRACE"   # Rewind
+0x3085d024 = "KEY_RIGHTBRACE"  # Fast Forward
+0x3085d025 = "KEY_S"           # Slow
+0x3085d026 = "KEY_COMMA"       # Replay (8 seconds back)
+0x3085d027 = "KEY_DOT"         # Advance
+0x3085d028 = "KEY_1"
+0x3085d029 = "KEY_2"
+0x3085d02a = "KEY_3"
+0x3085d02b = "KEY_4"
+0x3085d02c = "KEY_5"
+0x3085d02d = "KEY_6"
+0x3085d02e = "KEY_7"
+0x3085d02f = "KEY_8"
+0x3085d030 = "KEY_9"
+0x3085d031 = "KEY_0"
+0x3085d032 = "KEY_DELETE"      # Clear
+0x3085d033 = "KEY_E"           # Enter/Last

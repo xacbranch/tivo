@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TiVo Design Board</title>
+<style>
+  :root { --bg: #111214; --card: #1b1d21; --ink: #e9eaee; --dim: #9a9ead; --line: #2c2f36; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  header { padding: 22px 28px 8px; display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header p { margin: 0; color: var(--dim); }
+  .controls { margin-left: auto; display: flex; gap: 14px; align-items: center; color: var(--dim); }
+  .controls label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; padding: 16px 28px 32px; }
+  figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .frame { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #000; }
+  .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+  figcaption { padding: 10px 14px 12px; }
+  figcaption b { display: block; font-weight: 600; }
+  figcaption span { color: var(--dim); font-size: 12.5px; }
+  figcaption a { color: #8fb0ff; text-decoration: none; font-size: 12.5px; }
+  section.tokens { padding: 0 28px 40px; }
+  section.tokens h2 { font-size: 15px; font-weight: 600; margin: 8px 0 12px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .sw { width: 128px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+  .sw i { display: block; height: 44px; }
+  .sw div { padding: 6px 8px; font-size: 11.5px; color: var(--dim); }
+  .sw div b { color: var(--ink); font-weight: 600; display: block; }
+  @media (max-width: 520px) { header, .grid, section.tokens { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>TiVo Series 4 — SD menus, 640×480</h1>
+  <p>Live renders of the real UI in fixed states. Open any one to drive it with the keyboard.</p>
+  <div class="controls">
+    <label><input type="checkbox" id="crt"> CRT preview</label>
+  </div>
+</header>
+<div class="grid" id="grid"></div>
+<section class="tokens">
+  <h2>Palette (sampled from Series3/Premiere SD captures)</h2>
+  <div class="swatches" id="swatches"></div>
+</section>
+<script>
+  const STATES = [
+    ['central', 'TiVo Central', 'Warm amber background, white title'],
+    ['central-bottom', 'TiVo Central — last item', 'Up arrow only; down bonks'],
+    ['nowplaying', 'Now Playing List', 'Teal background, gold title, status icons'],
+    ['program', 'Program screen', 'From Now Playing → Charade'],
+    ['banner', 'Channel banner', 'Shows on every channel change'],
+    ['info', 'Info banner', 'INFO expands the banner'],
+    ['pause', 'Paused live TV', 'Whole program recorded; rewind to the start'],
+    ['ff', 'Fast forward ×2', 'Speed sounds + chevron count'],
+    ['playback', 'Recording playback', 'Info + bar, 0:00 → length'],
+    ['guide', 'Live Guide', 'Grid over live video, gold focus'],
+    ['digits', 'Channel entry', 'Typing a channel number'],
+    ['upnext', 'Up next card', 'Fills the gap after a film ends'],
+  ];
+  const grid = document.getElementById('grid');
+  const crt = document.getElementById('crt');
+  function draw() {
+    grid.replaceChildren(...STATES.map(([id, name, note]) => {
+      const f = document.createElement('figure');
+      const q = `demo=${id}${crt.checked ? '&crt=1' : ''}`;
+      f.innerHTML = `<div class="frame"><iframe src="index.html?${q}" loading="lazy" title="${name}"></iframe></div>
+        <figcaption><b>${name}</b><span>${note}</span> · <a href="index.html?${q.replace('demo=', 'demo=')}" target="_blank">open</a></figcaption>`;
+      return f;
+    }));
+  }
+  crt.addEventListener('change', draw);
+  draw();
+
+  const SW = [
+    ['Highlight bar', '#6585fe'], ['Bar edge', '#f3ef93'], ['Title gold', '#f7d97f'],
+    ['Trickplay green', '#00d100'], ['Guide cell', '#3f5f86'], ['Guide focus', '#ead24f'],
+    ['Guide frame', '#75779f'], ['Banner top', '#7c95d0'], ['Banner lower', '#23337a'], ['Banner body', '#0a1466'],
+  ];
+  document.getElementById('swatches').innerHTML = SW.map(([n, c]) =>
+    `<div class="sw"><i style="background:${c}"></i><div><b>${n}</b>${c}</div></div>`).join('');
+</script>
+</body>
+</html>

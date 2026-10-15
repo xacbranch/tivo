@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 86" width="120" height="86">
+  <!-- The Weather Channel, early-'90s mark: white-rimmed blue tile, stacked white type -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6f7ffb"/>
+      <stop offset=".45" stop-color="#3442d8"/>
+      <stop offset="1" stop-color="#1a1f96"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cfd3f6"/>
+    </linearGradient>
+  </defs>
+  <rect x="1.5" y="1.5" width="117" height="83" rx="17" fill="url(#rim)" stroke="#7a80c8" stroke-width="2"/>
+  <rect x="8" y="8" width="104" height="70" rx="11" fill="url(#tile)"/>
+  <g font-family="'Arial Black', 'Helvetica Neue', 'Nimbus Sans', Arial, sans-serif" font-weight="900" text-anchor="middle"
+     lengthAdjust="spacingAndGlyphs">
+    <g fill="#0d116a" transform="translate(1.6 1.8)">
+      <text x="60" y="30" font-size="19" textLength="44" lengthAdjust="spacingAndGlyphs">THE</text>
+      <text x="60" y="51" font-size="19" textLength="88" lengthAdjust="spacingAndGlyphs">WEATHER</text>
+      <text x="60" y="72" font-size="19" textLength="90" lengthAdjust="spacingAndGlyphs">CHANNEL</text>
+    </g>
+    <g fill="#ffffff">
+      <text x="60" y="30" font-size="19" textLength="44" lengthAdjust="spacingAndGlyphs">THE</text>
+      <text x="60" y="51" font-size="19" textLength="88" lengthAdjust="spacingAndGlyphs">WEATHER</text>
+      <text x="60" y="72" font-size="19" textLength="90" lengthAdjust="spacingAndGlyphs">CHANNEL</text>
+    </g>
+  </g>
+</svg>
